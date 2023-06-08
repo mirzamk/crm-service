@@ -15,6 +15,15 @@ func ActorNewRepo(db *gorm.DB) *ActorRepository {
 }
 
 type ActorInterfaceRepo interface {
+	GetAllActor(pagination helper.Pagination) (*helper.Pagination, error)
+	GetActorById(id uint) (entity.Actor, error)
+	GetActorByName(name string) (entity.Actor, error)
+	CountRowActor(totalRows *int64) error
+	SearchActorByName(pagination helper.Pagination, name string) (*helper.Pagination, error)
+	CreateActor(actor *entity.Actor) error
+	UpdateActor(actor entity.Actor, id uint) error
+	DeleteActor(id uint) error
+	GetRole(name string) (entity.Role, error)
 }
 
 func (c *ActorRepository) CountRowActor(totalRows *int64) error {
