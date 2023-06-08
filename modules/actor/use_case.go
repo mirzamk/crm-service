@@ -5,7 +5,7 @@ import (
 	"github.com/mirzamk/crm-service/config"
 	"github.com/mirzamk/crm-service/constant"
 	"github.com/mirzamk/crm-service/entity"
-	"github.com/mirzamk/crm-service/payload/request"
+	"github.com/mirzamk/crm-service/payload"
 	"github.com/mirzamk/crm-service/repository"
 	"github.com/mirzamk/crm-service/utils/helper"
 	"strconv"
@@ -16,20 +16,20 @@ type useCaseActor struct {
 }
 
 type UseCaseActor interface {
-	Register(actor request.AuthActor) error
-	Login(actor request.AuthActor) (string, error)
+	Register(actor payload.AuthActor) error
+	Login(actor payload.AuthActor) (string, error)
 	GetActorById(id int) (ActorDto, error)
 	SearchActorByName(filter map[string]string) (*helper.Pagination, error)
-	UpdateActor(updateActor request.UpdateActor, id int) error
+	UpdateActor(updateActor payload.UpdateActor, id int) error
 	DeleteActor(id int) error
 	UpdateFlagActor(actor ActorDto, id int) error
 	SearchApproval() ([]ApprovalDto, error)
 	SearchApprovalByStatus(status string) ([]ApprovalDto, error)
 	GetApprovalById(id int) (ApprovalDto, error)
-	ChangeStatusApproval(id int, status request.ApprovalStatus) error
+	ChangeStatusApproval(id int, status payload.ApprovalStatus) error
 }
 
-func (au *useCaseActor) Register(actor request.AuthActor) error {
+func (au *useCaseActor) Register(actor payload.AuthActor) error {
 	existUsername, _ := au.ActorRepo.GetActorByName(actor.Username)
 	if existUsername.Username != "" {
 		return constant.ErrAdminUsernameExists
@@ -66,7 +66,7 @@ func (au *useCaseActor) Register(actor request.AuthActor) error {
 	}
 	return nil
 }
-func (au *useCaseActor) Login(actor request.AuthActor) (string, error) {
+func (au *useCaseActor) Login(actor payload.AuthActor) (string, error) {
 	account, _ := au.ActorRepo.GetActorByName(actor.Username)
 	if account.Username == "" {
 		return "", constant.ErrAdminNotFound
@@ -141,7 +141,7 @@ func (au *useCaseActor) SearchActorByName(filter map[string]string) (*helper.Pag
 	result.Rows = admins
 	return result, nil
 }
-func (au *useCaseActor) UpdateActor(updateActor request.UpdateActor, id int) error {
+func (au *useCaseActor) UpdateActor(updateActor payload.UpdateActor, id int) error {
 	_, err := au.ActorRepo.GetActorById(uint(id))
 	if err != nil {
 		return constant.ErrAdminNotFound
@@ -189,15 +189,15 @@ func (au *useCaseActor) UpdateFlagActor(actor ActorDto, id int) error {
 	}
 	return nil
 }
-func (au *useCaseActor) SearchApproval() ([]ApprovalDTO, error) {
+func (au *useCaseActor) SearchApproval() ([]ApprovalDto, error) {
 	gets, err := au.ApprovalRepo.SearchApproval()
 	if err != nil {
 		return nil, err
 	}
-	var appovalsDTO []ApprovalDTO
+	var appovalsDTO []ApprovalDto
 
 	for _, item := range gets {
-		approvalDTO := ApprovalDTO{
+		approvalDTO := ApprovalDto{
 			ID: item.ID,
 			Admin: ActorDto{
 				Username:   item.Admin.Username,
@@ -210,14 +210,14 @@ func (au *useCaseActor) SearchApproval() ([]ApprovalDTO, error) {
 	}
 	return appovalsDTO, nil
 }
-func (au *useCaseActor) SearchApprovalByStatus(status string) ([]ApprovalDTO, error) {
+func (au *useCaseActor) SearchApprovalByStatus(status string) ([]ApprovalDto, error) {
 	gets, err := au.ApprovalRepo.SearchApprovalByStatus(status)
 	if err != nil {
 		return nil, err
 	}
-	var appovalsDTO []ApprovalDTO
+	var appovalsDTO []ApprovalDto
 	for _, item := range gets {
-		approvalDTO := ApprovalDTO{
+		approvalDTO := ApprovalDto{
 			ID: item.ID,
 			Admin: ActorDto{
 				Username:   item.Admin.Username,
@@ -230,12 +230,12 @@ func (au *useCaseActor) SearchApprovalByStatus(status string) ([]ApprovalDTO, er
 	}
 	return appovalsDTO, nil
 }
-func (au *useCaseActor) GetApprovalById(id int) (ApprovalDTO, error) {
+func (au *useCaseActor) GetApprovalById(id int) (ApprovalDto, error) {
 	get, err := au.ApprovalRepo.GetApprovalById(uint(id))
 	if err != nil {
-		return ApprovalDTO{}, constant.ErrApprovalNotFound
+		return ApprovalDto{}, constant.ErrApprovalNotFound
 	}
-	approvalDTO := ApprovalDTO{
+	approvalDTO := ApprovalDto{
 		ID: get.ID,
 		Admin: ActorDto{
 			Username:   get.Admin.Username,
@@ -246,7 +246,7 @@ func (au *useCaseActor) GetApprovalById(id int) (ApprovalDTO, error) {
 	}
 	return approvalDTO, nil
 }
-func (au *useCaseActor) ChangeStatusApproval(id int, status request.ApprovalStatus) error {
+func (au *useCaseActor) ChangeStatusApproval(id int, status payload.ApprovalStatus) error {
 	fmt.Println(status)
 	_, err := au.ApprovalRepo.GetApprovalById(uint(id))
 	if err != nil {
