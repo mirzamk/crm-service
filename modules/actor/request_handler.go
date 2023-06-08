@@ -2,8 +2,10 @@ package actor
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/mirzamk/crm-service/config"
 	"github.com/mirzamk/crm-service/constant"
+	"github.com/mirzamk/crm-service/middleware"
 	"github.com/mirzamk/crm-service/payload"
 	"net/http"
 	"strconv"
@@ -11,6 +13,8 @@ import (
 
 type actorRequestHandler struct {
 	actorController ActorController
+	Auth            middleware.AuthorizationInterface
+	Validation      middleware.ValidationInterface
 }
 
 type ActorRequestHandler interface {
@@ -174,7 +178,7 @@ func (ar *actorRequestHandler) UpdateFlagActor(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, payload.HandleFailedResponse(err.Error(), 400))
 		return
 	}
-	actorReq := new(ActorDTO)
+	actorReq := new(ActorDto)
 	err = c.ShouldBindJSON(&actorReq)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, payload.HandleFailedResponse(err.Error(), 400))

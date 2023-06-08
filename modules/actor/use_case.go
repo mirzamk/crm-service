@@ -7,12 +7,14 @@ import (
 	"github.com/mirzamk/crm-service/entity"
 	"github.com/mirzamk/crm-service/payload"
 	"github.com/mirzamk/crm-service/repository"
+	"github.com/mirzamk/crm-service/security"
 	"github.com/mirzamk/crm-service/utils/helper"
 	"strconv"
 )
 
 type useCaseActor struct {
-	ActorRepo repository.ActorInterfaceRepo
+	ActorRepo    repository.ActorInterfaceRepo
+	ApprovalRepo repository.ApprovalInterfaceRepository
 }
 
 type UseCaseActor interface {
